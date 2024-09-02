@@ -193,8 +193,10 @@ The advanced search functionality allows you to filter and sort books based on v
 
    ```http
    GET /api/books?title=harry&sortBy=price&sortOrder=asc
+   ```
    ```http
    GET /api/books?sortBy=price
+   ```
    ```http
    GET /api/books?sortOrder=asc
    ```
@@ -204,8 +206,10 @@ The advanced search functionality allows you to filter and sort books based on v
 2. **Search by Author and Sort by Published Date in Descending Order**
    ```http
    GET /api/books?author=rowling
+   ```
    ```http
    GET /api/books?sortBy=publishedDate
+   ```
    ```http
    GET /api/books?sortOrder=desc
    ```
@@ -215,8 +219,10 @@ The advanced search functionality allows you to filter and sort books based on v
 3. **Search by Price Range and Pagination**
    ```http
    GET /api/books?price=20
+   ```
    ```http
    GET /api/books?page=2
+   ```
    ```http
    GET /api/books?lim=10
    ```
@@ -226,8 +232,10 @@ The advanced search functionality allows you to filter and sort books based on v
 4. **Search by Stock Status and Multiple Sort Fields**
    ```http
    GET /api/books?inStock=true
+   ```
    ```http
    GET /api/books?sortBy=price,publishedDate
+   ```
    ```http
    GET /api/books?sortOrder=asc
    ```
