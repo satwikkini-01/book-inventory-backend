@@ -56,8 +56,17 @@ async function handleBookPost(req, res) {
 
 async function handleBookGet(req, res) {
     try {
-        const { title, author, price, inStock, page = 1, lim = 50 } = req.query;
+        const {
+            title,
+            author,
+            price,
+            inStock,
+            page = 1,
+            lim = 50,
+            sortBy = "price",
+        } = req.query;
         const queryParams = {};
+        const sortOptions = {};
         const limInt = parseInt(lim);
 
         if (title) {
@@ -96,7 +105,30 @@ async function handleBookGet(req, res) {
             }
         }
 
-        const cacheKey = `books:${JSON.stringify(queryParams)}:${page}:${lim}`;
+        if (sortBy) {
+            const sortFields = sortBy.split(",").map((field) => field.trim());
+            sortFields.forEach((field) => {
+                if (["price", "publishedDate"].includes(field)) {
+                    sortOptions[field] = 1;
+                }
+            });
+        }
+
+        const serializeQueryParams = (params) => {
+            const result = {};
+            for (const [key, value] of Object.entries(params)) {
+                if (value instanceof RegExp) {
+                    result[key] = value.toString();
+                } else {
+                    result[key] = value;
+                }
+            }
+            return result;
+        };
+
+        const cacheKey = `books:${JSON.stringify(
+            serializeQueryParams(queryParams)
+        )}:${page}:${lim}`;
 
         try {
             const cacheValue = await client.get(cacheKey);
@@ -116,7 +148,8 @@ async function handleBookGet(req, res) {
 
         const allBooks = await Book.find(queryParams)
             .skip((page - 1) * limInt)
-            .limit(limInt);
+            .limit(limInt)
+            .sort(sortOptions);
 
         const books = await Book.countDocuments(queryParams);
 
