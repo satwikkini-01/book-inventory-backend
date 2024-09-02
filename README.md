@@ -46,7 +46,6 @@ Before you begin, ensure you have the following installed on your system:
 
 ## Redis Installation
 
-- To use Redis with this application, make sure Redis is installed and running. You can install Redis using Homebrew with the following command:
 - To use Redis with Docker, follow these steps:
 1. **Pull the Redis Docker Image**
    Pull the official Redis image from Docker Hub:
