@@ -12,6 +12,7 @@ const redis = require("redis");
 })();
 
 const Book = require("../models/book");
+const logger = require("../auditLog");
 
 async function handleBookPost(req, res) {
     try {
@@ -40,8 +41,10 @@ async function handleBookPost(req, res) {
             price,
             inStock,
         });
+        logger.info(`POST request. Created book ID: ${newBook._id}.`);
         return res.status(201).json(newBook);
     } catch (error) {
+        logger.error(`Error while handling POST request. Error: ${error}`);
         if (error.name === "MongoError" && error.code === 11000) {
             return res.status(400).json({ error: "Duplicate book entry" });
         }
@@ -98,10 +101,16 @@ async function handleBookGet(req, res) {
         try {
             const cacheValue = await client.get(cacheKey);
             if (cacheValue) {
+                logger.info(
+                    `GET request from cache. Fetched book IDs: ${cacheValue}.`
+                );
                 return res.status(200).json(JSON.parse(cacheValue));
             }
         } catch (err) {
             console.log("Error fetching from Redis: ", err);
+            logger.error(
+                `GET Request, Error fetching from Redis server. Error: ${err}`
+            );
             return res.status(500).send({ error: "Error in Redis server" });
         }
 
@@ -123,6 +132,9 @@ async function handleBookGet(req, res) {
                 })
             );
 
+            logger.info(
+                `GET request from database. Fetched book IDs: ${allBooks}.`
+            );
             return res.status(200).json({
                 page: parseInt(page),
                 totalPages: Math.ceil(books / limInt),
@@ -130,9 +142,11 @@ async function handleBookGet(req, res) {
                 books,
             });
         } else {
+            logger.info(`GET request from database. No books found.`);
             return res.status(200).send({ notFound: "No books found" });
         }
     } catch (error) {
+        logger.error(`GET Request, Error fetching books. Error: ${error}`);
         return res.status(500).json({
             error: "Error while fetching books",
             details: error.message,
@@ -153,21 +167,30 @@ async function handleBookGetByID(req, res) {
         try {
             const cacheValue = await client.get(cacheKey);
             if (cacheValue) {
+                logger.info(
+                    `GET request from cache. Fetched book ID: ${cacheValue}.`
+                );
                 return res.status(200).json(JSON.parse(cacheValue));
             }
         } catch (err) {
             console.log("Error fetching from Redis: ", err);
+            logger.error(
+                `GET Request, Error fetching from Redis server. Error: ${err}`
+            );
             return res.status(500).send({ error: "Error in Redis server" });
         }
 
         const book = await Book.findOne({ _id: bookId });
         if (book) {
+            logger.info(`GET request from database. Fetched book ID: ${book}.`);
             await client.setEx(cacheKey, 30, JSON.stringify({ book }));
             return res.status(200).json(book);
         } else {
+            logger.info(`GET request from database. Book Not Found.`);
             return res.status(404).json({ error: "Book not found" });
         }
     } catch (error) {
+        logger.error(`GET Request, Error fetching books. Error: ${error}`);
         return res.status(500).json({
             error: "Error while fetching book",
             details: error.message,
@@ -197,11 +220,14 @@ async function handleBookPut(req, res) {
         );
 
         if (updateBook) {
+            logger.info(`PUT request. Updated book ID: ${updateBook}.`);
             return res.status(200).json(updateBook);
         } else {
+            logger.error(`PUT request. Book Not Found`);
             return res.status(404).json({ error: "Book not found" });
         }
     } catch (error) {
+        logger.error(`PUT request error from Database. Error: ${error}`);
         return res.status(500).json({
             error: "Error while updating book",
             details: error.message,
@@ -219,11 +245,14 @@ async function handleBookDelete(req, res) {
 
         const deletedBook = await Book.deleteOne({ _id: bookId });
         if (deletedBook.deletedCount === 1) {
+            logger.info(`DELETE request. Deleted book ID: ${deletedBook}.`);
             return res.status(204).send({ success: "Successfully Deleted" });
         } else {
+            logger.error(`DELETE request. Book Not Found`);
             return res.status(404).send({ error: "Book Not Found" });
         }
     } catch (error) {
+        logger.error(`DELETE request error from Database. Error: ${error}`);
         return res.status(500).json({
             error: "Error while deleting book",
             details: error.message,
