@@ -15,6 +15,7 @@ This project is a simple RESTful API for managing a book inventory. It is built 
 - [Error Handling](#error-handling)
 - [Caching with Redis](#caching-with-redis)
 - [Advanced Search](#Advanced-Search)
+- [Audit Logging](#audit-logging)
 
 ## Features
 
@@ -245,3 +246,24 @@ The advanced search functionality allows you to filter and sort books based on v
 ### Notes
 - Sorting will only be applied if the `sortBy` parameter is specified.
 - Ensure that the `sortOrder` parameter is either `asc` or `desc` to avoid unexpected results.
+
+## Audit Logging
+
+Audit logging is an essential feature for tracking and reviewing changes made to the system. It helps in monitoring user actions, debugging issues, and ensuring compliance.
+
+### Feature
+
+Audit logging captures details of create, update, and delete operations within the system. It provides transparency and traceability for all changes made to the book inventory.
+
+### Implementation
+
+- **Log Details**: Each log entry includes:
+  - **Book ID**: To store the Book ID which has been created, updated, or deleted.
+  - **Operation Type**: The type of operation (e.g., create, update, delete).
+  - **Timestamp**: The date and time when the operation occurred.
+  
+- **Storage**: Logs are stored in a separate collection in the MongoDB database to keep them isolated from primary data and facilitate easy querying.
+
+### Logging Library
+
+- **Winston**: The project uses Winston for logging. Winston provides a versatile logging framework that supports various transports and formats.
