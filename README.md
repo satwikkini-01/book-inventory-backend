@@ -45,6 +45,7 @@ Before you begin, ensure you have the following installed on your system:
 ## Environment Variables
 
 Create a .env file in the root directory of your project. This file should contain the following environment variables:
+
     ```bash
     PORT=3000
     MONGO_URL=mongodb://localhost:27017/bookInventoryDB
@@ -52,10 +53,12 @@ Create a .env file in the root directory of your project. This file should conta
 ## Running the Application
 
 Start the server with the following command:
+
     ```bash
     npm start
 
 If you prefer to use nodemon for automatic restarts on file changes, you can use:
+
     ```bash
     npm run dev
 
@@ -67,6 +70,7 @@ The server will start on http://localhost:3000 (or the port you configured in th
     **Endpoint:** POST /api/books
     **Description:** Add a new book to the inventory.
     **Request Body:**
+    
         ```bash
         {
         "title": "Book Title",
