@@ -65,6 +65,7 @@ Before you begin, ensure you have the following installed on your system:
    Check if the Redis container is up and running:
    ```bash
    docker ps
+   ```
 
    This command should list the Redis container with port 6379 exposed.
 
@@ -72,7 +73,7 @@ Before you begin, ensure you have the following installed on your system:
    To connect to the Redis server running inside the container, use the Redis CLI:
    ```bash
    docker exec -it redis redis-cli
-
+   ```
 
 
 
