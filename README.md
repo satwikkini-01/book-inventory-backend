@@ -14,6 +14,7 @@ This project is a simple RESTful API for managing a book inventory. It is built 
 - [Search & Pagination](#search--pagination)
 - [Error Handling](#error-handling)
 - [Caching with Redis](#caching-with-redis)
+- [Advanced Search](#Advanced-Search)
 
 ## Features
 
@@ -170,3 +171,69 @@ This application uses Redis to cache the results of book queries. Cached data he
 - **Book By ID**: Cached for 30 seconds to speed up access to individual book details.
 
 If you modify or add new books, the cache will be updated automatically based on the query parameters.
+
+## Advanced Search
+
+The advanced search functionality allows you to filter and sort books based on various criteria. You can specify multiple filters and sorting options to refine your search results.
+
+### Query Parameters
+
+- **`title`** (optional): Filter books by title. Use partial matches with regular expressions.
+- **`author`** (optional): Filter books by author. Use partial matches with regular expressions.
+- **`price`** (optional): Filter books by price. Must be a non-negative number.
+- **`inStock`** (optional): Filter books by stock status. Use `true` or `false`.
+- **`page`** (optional): Specify the page number for pagination. Default is `1`.
+- **`lim`** (optional): Specify the number of results per page. Default is `50`.
+- **`sortBy`** (optional): Define the sorting criteria. Use comma-separated field names (e.g., `price,publishedDate`).
+- **`sortOrder`** (optional): Define the sort order. Use `asc` for ascending or `desc` for descending. Default is `asc`.
+
+### Examples
+
+1. **Search by Title and Sort by Price in Ascending Order**
+
+   ```http
+   GET /api/books?title=harry&sortBy=price&sortOrder=asc
+   ```http
+   GET /api/books?sortBy=price
+   ```http
+   GET /api/books?sortOrder=asc
+   ```
+
+**Description:** Retrieves books with "harry" in the title, sorted by price in ascending order.
+
+2. **Search by Author and Sort by Published Date in Descending Order**
+   ```http
+   GET /api/books?author=rowling
+   ```http
+   GET /api/books?sortBy=publishedDate
+   ```http
+   GET /api/books?sortOrder=desc
+   ```
+
+**Description:** Retrieves books by "rowling," sorted by published date in descending order.
+
+3. **Search by Price Range and Pagination**
+   ```http
+   GET /api/books?price=20
+   ```http
+   GET /api/books?page=2
+   ```http
+   GET /api/books?lim=10
+   ```
+
+**Description:** Retrieves books priced at 20, with results paginated to show 10 books per page, starting from page 2.
+
+4. **Search by Stock Status and Multiple Sort Fields**
+   ```http
+   GET /api/books?inStock=true
+   ```http
+   GET /api/books?sortBy=price,publishedDate
+   ```http
+   GET /api/books?sortOrder=asc
+   ```
+
+**Description:** Retrieves books that are in stock, sorted by price and published date in ascending order.
+
+### Notes
+- Sorting will only be applied if the `sortBy` parameter is specified.
+- Ensure that the `sortOrder` parameter is either `asc` or `desc` to avoid unexpected results.

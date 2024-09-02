@@ -63,7 +63,8 @@ async function handleBookGet(req, res) {
             inStock,
             page = 1,
             lim = 50,
-            sortBy = "price",
+            sortBy,
+            sortOrder = "asc",
         } = req.query;
         const queryParams = {};
         const sortOptions = {};
@@ -106,10 +107,11 @@ async function handleBookGet(req, res) {
         }
 
         if (sortBy) {
-            const sortFields = sortBy.split(",").map((field) => field.trim());
-            sortFields.forEach((field) => {
-                if (["price", "publishedDate"].includes(field)) {
-                    sortOptions[field] = 1;
+            const sortFields = sortBy.split(',').map(field => field.trim());
+            const direction = sortOrder === 'desc' ? -1 : 1;
+            sortFields.forEach(field => {
+                if (['price', 'publishedDate'].includes(field)) {
+                    sortOptions[field] = direction;
                 }
             });
         }
