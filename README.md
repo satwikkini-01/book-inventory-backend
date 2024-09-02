@@ -7,11 +7,13 @@ This project is a simple RESTful API for managing a book inventory. It is built 
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [Redis Installation](#redis-installation)
 - [Environment Variables](#environment-variables)
 - [Running the Application](#running-the-application)
 - [API Endpoints](#api-endpoints)
 - [Search & Pagination](#search--pagination)
 - [Error Handling](#error-handling)
+- [Caching with Redis](#caching-with-redis)
 
 ## Features
 
@@ -41,6 +43,38 @@ Before you begin, ensure you have the following installed on your system:
 
     ```bash
     npm install 
+
+## Redis Installation
+
+- To use Redis with this application, make sure Redis is installed and running. You can install Redis using Homebrew with the following command:
+- To use Redis with Docker, follow these steps:
+1. **Pull the Redis Docker Image**
+   Pull the official Redis image from Docker Hub:
+   ```bash
+   docker pull redis
+
+2. **Run Redis Container**
+   Start a Redis container with the following command:
+   ```bash
+   docker run --name redis -d -p 6379:6379 redis
+- `--name redis` assigns a name to the container.
+- `-d` runs the container in detached mode.
+- `-p 6379:6379` maps port 6379 of the container to port 6379 on your host machine.
+
+3. **Verify Redis is Running**
+   Check if the Redis container is up and running:
+   ```bash
+   docker ps
+
+   This command should list the Redis container with port 6379 exposed.
+
+4. **Connect to Redis**
+   To connect to the Redis server running inside the container, use the Redis CLI:
+   ```bash
+   docker exec -it redis redis-cli
+
+
+
 
 ## Environment Variables
 
@@ -127,3 +161,12 @@ The API handles various types of errors:
 - **404 Not Found:** Requested resource does not exist (e.g., book ID not found).
 - **422 Unprocessable Entity:** Invalid data format (e.g., invalid date).
 - **500 Internal Server Error:** Unexpected errors such as database connectivity issues.
+
+## Caching with Redis
+
+This application uses Redis to cache the results of book queries. Cached data helps to improve response times for frequently accessed data.
+
+- **Book Queries**: Cached for 30 seconds to reduce database load.
+- **Book By ID**: Cached for 30 seconds to speed up access to individual book details.
+
+If you modify or add new books, the cache will be updated automatically based on the query parameters.

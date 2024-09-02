@@ -1,4 +1,16 @@
 const { Types } = require("mongoose");
+const redis = require("redis");
+
+(async () => {
+    client = redis.createClient();
+
+    client.on("error", (error) =>
+        console.log("Error connecting redis: ", error)
+    );
+    client.on("connect", () => console.log("Redis Connected"));
+    await client.connect();
+})();
+
 const Book = require("../models/book");
 
 async function handleBookPost(req, res) {
@@ -39,7 +51,6 @@ async function handleBookPost(req, res) {
     }
 }
 
-// Doubt
 async function handleBookGet(req, res) {
     try {
         const { title, author, price, inStock, page = 1, lim = 50 } = req.query;
@@ -82,6 +93,18 @@ async function handleBookGet(req, res) {
             }
         }
 
+        const cacheKey = `books:${JSON.stringify(queryParams)}:${page}:${lim}`;
+
+        try {
+            const cacheValue = await client.get(cacheKey);
+            if (cacheValue) {
+                return res.status(200).json(JSON.parse(cacheValue));
+            }
+        } catch (err) {
+            console.log("Error fetching from Redis: ", err);
+            return res.status(500).send({ error: "Error in Redis server" });
+        }
+
         const allBooks = await Book.find(queryParams)
             .skip((page - 1) * limInt)
             .limit(limInt);
@@ -89,6 +112,17 @@ async function handleBookGet(req, res) {
         const books = await Book.countDocuments(queryParams);
 
         if (allBooks.length > 0) {
+            await client.setEx(
+                cacheKey,
+                30,
+                JSON.stringify({
+                    page: parseInt(page),
+                    totalPages: Math.ceil(books / limInt),
+                    allBooks,
+                    books,
+                })
+            );
+
             return res.status(200).json({
                 page: parseInt(page),
                 totalPages: Math.ceil(books / limInt),
@@ -114,8 +148,21 @@ async function handleBookGetByID(req, res) {
             return res.status(400).json({ error: "Invalid book ID" });
         }
 
+        const cacheKey = bookId;
+
+        try {
+            const cacheValue = await client.get(cacheKey);
+            if (cacheValue) {
+                return res.status(200).json(JSON.parse(cacheValue));
+            }
+        } catch (err) {
+            console.log("Error fetching from Redis: ", err);
+            return res.status(500).send({ error: "Error in Redis server" });
+        }
+
         const book = await Book.findOne({ _id: bookId });
         if (book) {
+            await client.setEx(cacheKey, 30, JSON.stringify({ book }));
             return res.status(200).json(book);
         } else {
             return res.status(404).json({ error: "Book not found" });
