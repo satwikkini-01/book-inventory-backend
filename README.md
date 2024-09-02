@@ -64,9 +64,9 @@ The server will start on http://localhost:3000 (or the port you configured in th
 ## API Endpoints
 
 **Create a Book**
-    **Endpoint:** POST /api/books
-    **Description:** Add a new book to the inventory.
-    **Request Body:**
+- **Endpoint:** POST /api/books.
+- **Description:** Add a new book to the inventory.
+- **Request Body:**
         
         {
         "title": "Book Title",
@@ -77,7 +77,7 @@ The server will start on http://localhost:3000 (or the port you configured in th
         "inStock": true
         }
         
-    **Response:** Returns the created book object.
+- **Response:** Returns the created book object.
 
 
 **Get All Books**
